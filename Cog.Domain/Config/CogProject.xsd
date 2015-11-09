@@ -294,6 +294,25 @@
 			</xs:extension>
 		</xs:complexContent>
 	</xs:complexType>
+  <xs:complexType name="LexStatCognateIdentifier">
+    <xs:complexContent>
+      <xs:extension base="CognateIdentifierBase">
+        <xs:sequence>
+          <xs:element name="SoundClasses">
+            <xs:complexType>
+              <xs:sequence>
+                <xs:choice minOccurs="1" maxOccurs="unbounded">
+                  <xs:element ref="NaturalClass" />
+                  <xs:element ref="UnnaturalClass" />
+                </xs:choice>
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+          <xs:element name="InitialEquivalenceThreshold" type="xs:int" />
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
 	<xs:complexType name="ThresholdCognateIdentifier">
 		<xs:complexContent>
 			<xs:extension base="CognateIdentifierBase">

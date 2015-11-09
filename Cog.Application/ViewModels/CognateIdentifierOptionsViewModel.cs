@@ -11,8 +11,8 @@ namespace SIL.Cog.Application.ViewModels
 		private double _initialAlignmentThreshold;
 
 		public CognateIdentifierOptionsViewModel(SegmentPool segmentPool, IProjectService projectService, BlairCognateIdentifierViewModel blairCognateIdentifier,
-			ThresholdCognateIdentifierViewModel thresholdCognateIdentifier, DolgopolskyCognateIdentifierViewModel dolgopolskyCognateIdentifier)
-			: base("Likely cognate identification", "Method", blairCognateIdentifier, thresholdCognateIdentifier, dolgopolskyCognateIdentifier)
+            ThresholdCognateIdentifierViewModel thresholdCognateIdentifier, DolgopolskyCognateIdentifierViewModel dolgopolskyCognateIdentifier, LexStatCognateIdentifierViewModel lexStatCognateIdentifier)
+            : base("Likely cognate identification", "Method", blairCognateIdentifier, thresholdCognateIdentifier, dolgopolskyCognateIdentifier, lexStatCognateIdentifier)
 		{
 			_segmentPool = segmentPool;
 			_projectService = projectService;
@@ -28,6 +28,8 @@ namespace SIL.Cog.Application.ViewModels
 				index = 1;
 			else if (cognateIdentifier is DolgopolskyCognateIdentifier)
 				index = 2;
+            else if (cognateIdentifier is LexStatCognateIdentifier)
+                index = 3;
 			SelectedOption = Options[index];
 
 			var wordPairGenerator = (CognacyWordPairGenerator) _projectService.Project.VarietyPairProcessors[ComponentIdentifiers.WordPairGenerator];

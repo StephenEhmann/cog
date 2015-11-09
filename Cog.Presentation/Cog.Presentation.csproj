@@ -209,6 +209,9 @@
     <Compile Include="Views\ComponentOptionsView.xaml.cs">
       <DependentUpon>ComponentOptionsView.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Views\LexStatCognateIdentifierView.xaml.cs">
+      <DependentUpon>LexStatCognateIdentifierView.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\DolgopolskyCognateIdentifierView.xaml.cs">
       <DependentUpon>DolgopolskyCognateIdentifierView.xaml</DependentUpon>
     </Compile>
@@ -410,6 +413,10 @@
     <Page Include="Views\ComponentOptionsView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\LexStatCognateIdentifierView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
     </Page>
     <Page Include="Views\DolgopolskyCognateIdentifierView.xaml">
       <SubType>Designer</SubType>

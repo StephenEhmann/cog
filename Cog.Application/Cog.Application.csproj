@@ -124,6 +124,7 @@
     <Compile Include="ViewModels\AlignedNodeViewModel.cs" />
     <Compile Include="ViewModels\AlineViewModel.cs" />
     <Compile Include="ViewModels\AnalyzeViewModel.cs" />
+    <Compile Include="ViewModels\LexStatCognateIdentifierViewModel.cs" />
     <Compile Include="ViewModels\SegmentMappingsChartSegmentPairViewModel.cs" />
     <Compile Include="ViewModels\SegmentMappingsChartSegmentViewModel.cs" />
     <Compile Include="ViewModels\SegmentMappingsChartViewModel.cs" />

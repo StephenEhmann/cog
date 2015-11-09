@@ -50,6 +50,7 @@
     <Compile Include="Components\AffixStripper.cs" />
     <Compile Include="Components\AlineScorer.cs" />
     <Compile Include="Components\AlineSettings.cs" />
+    <Compile Include="Components\LexStatCognateIdentifier.cs" />
     <Compile Include="Components\SoundCorrespondenceIdentifier.cs" />
     <Compile Include="Components\MultipleWordAlignerResult.cs" />
     <Compile Include="Components\SegmentFrequencyDistributionCalculator.cs" />
@@ -81,6 +82,7 @@
     <Compile Include="Components\CognacyWordPairGenerator.cs" />
     <Compile Include="Components\SimpleWordPairGenerator.cs" />
     <Compile Include="Config\Components\CognacyWordPairGeneratorConfig.cs" />
+    <Compile Include="Config\Components\LexStatCognateIdentifierConfig.cs" />
     <Compile Include="Config\Components\SimpleSyllabifierConfig.cs" />
     <Compile Include="Config\Components\SimpleWordPairGeneratorConfig.cs" />
     <Compile Include="Config\Components\SspSyllabifierConfig.cs" />

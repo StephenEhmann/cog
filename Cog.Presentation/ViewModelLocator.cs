@@ -90,6 +90,7 @@ namespace SIL.Cog.Presentation
 			builder.RegisterType<BlairCognateIdentifierViewModel>().SingleInstance();
 			builder.RegisterType<ThresholdCognateIdentifierViewModel>().SingleInstance();
 			builder.RegisterType<DolgopolskyCognateIdentifierViewModel>().SingleInstance();
+            builder.RegisterType<LexStatCognateIdentifierViewModel>().SingleInstance();
 
 			// Multiple instance view models
 			builder.RegisterType<WordListsVarietyViewModel>();
