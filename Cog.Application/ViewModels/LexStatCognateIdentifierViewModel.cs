@@ -48,19 +48,31 @@ namespace SIL.Cog.Application.ViewModels
 			IEnumerable<SoundClass> soundClasses;
 			if (lexStat == null)
 			{
+
 				Set(() => InitialEquivalenceThreshold, ref _initialEquivalenceThreshold, 2);
 				soundClasses = new SoundClass[]
 					{
-						new UnnaturalClass("K", new[] {"t͡s", "d͡z", "t͡ɕ", "d͡ʑ", "t͡ʃ", "d͡ʒ", "c", "ɟ", "t͡θ", "t͡ʂ", "d͡ʐ", "k", "g", "q", "ɢ", "ɡ", "ɠ", "x", "ɣ", "χ"}, true, project.Segmenter),
-						new UnnaturalClass("P", new[] {"ɸ", "β", "f", "p͡f", "p", "b", "ɓ"}, true, project.Segmenter),
-						new UnnaturalClass("Ø", new[] {"ʔ", "ħ", "ʕ", "h", "ɦ", "-", "#ŋ"}, true, project.Segmenter),
-						new UnnaturalClass("J", new[] {"j", "ɥ", "ɰ"}, true, project.Segmenter),
-						new UnnaturalClass("M", new[] {"m", "ɱ", "ʍ"}, true, project.Segmenter),
- 						new UnnaturalClass("N", new[] {"n", "ɳ", "ŋ", "ɴ", "ɲ"}, true, project.Segmenter),
- 						new UnnaturalClass("S", new[] {"s", "z", "ʃ", "ʒ", "ʂ", "ʐ", "ç", "ʝ", "ɕ", "ʑ", "ɧ"}, true, project.Segmenter),
-						new UnnaturalClass("R", new[] {"ɹ", "ɻ", "ʀ", "ɾ", "r", "ʁ", "ɽ", "l", "ɭ", "ʎ", "ʟ", "ɬ", "ɮ", "ɫ", "ł"}, true, project.Segmenter),
-						new UnnaturalClass("T", new[] {"t", "d", "ɗ", "ʈ", "ɖ", "θ", "ð"}, true, project.Segmenter),
- 						new UnnaturalClass("W", new[] {"w", "ʋ", "v", "ʙ"}, true, project.Segmenter)
+                        new UnnaturalClass("A", new[] {"a", "ᴀ", "ã", "ɑ", "á", "à", "ā", "ǎ", "â"}, true, project.Segmenter),
+                        new UnnaturalClass("C", new[] {"t͡s", "d͡z", "ʦ", "ʣ", "t͡ɕ", "d͡ʑ", "ʨ", "ʥ", "t͡ʃ", "d͡ʒ", "ʧ", "ʤ", "c", "ɟ", "t͡ʂ", "d͡ʐ", "č", "ž", "t͡θ", "ʄ"}, true, project.Segmenter),
+                        new UnnaturalClass("B", new[] {"ɸ", "β", "f", "p͡f", "ƀ", "v", "ʙ"}, true, project.Segmenter),
+                        new UnnaturalClass("E", new[] {"ɛ", "æ", "ɜ", "ɐ", "ʌ", "e", "ᴇ", "ə", "ɘ", "ɤ", "è", "é", "ē", "ě", "ê", "ɚ", "ǝ", "ẽ"}, true, project.Segmenter),
+                        new UnnaturalClass("D", new[] {"θ", "ð", "ŧ", "þ", "đ"}, true, project.Segmenter),
+                        new UnnaturalClass("G", new[] {"x", "ɣ", "χ"}, true, project.Segmenter),
+                        new UnnaturalClass("I", new[] {"i", "ɪ", "ɨ", "ɿ", "ʅ", "ɯ", "ĩ", "í", "ǐ", "ì", "î", "ī", "ı"}, true, project.Segmenter),
+                        new UnnaturalClass("H", new[] {"ʔ", "ħ", "ʕ", "h", "ɦ"}, true, project.Segmenter),
+                        new UnnaturalClass("K", new[] {"k", "g", "q", "ɢ", "ɡ"}, true, project.Segmenter),
+                        new UnnaturalClass("J", new[] {"j", "ɥ", "ɰ"}, true, project.Segmenter),
+                        new UnnaturalClass("M", new[] {"m", "ɱ", "ʍ"}, true, project.Segmenter),
+                        new UnnaturalClass("L", new[] {"l", "ȴ", "l", "ɭ", "ʎ", "ʟ", "ɬ", "ɮ", "ł", "ɫ"}, true, project.Segmenter),
+                        new UnnaturalClass("O", new[] {"Œ", "ɒ"}, true, project.Segmenter),
+                        new UnnaturalClass("N", new[] {"n", "ȵ", "ɳ", "ŋ", "ɴ", "ň", "ń", "ɲ"}, true, project.Segmenter),
+                        new UnnaturalClass("P", new[] {"p", "b", "ɓ"}, true, project.Segmenter),
+                        new UnnaturalClass("S", new[] {"s", "z", "ʃ", "ʒ", "ʂ", "ʐ", "ç", "ʝ", "š", "ž", "ɕ", "ɧ", "ʑ"}, true, project.Segmenter),
+                        new UnnaturalClass("R", new[] {"ɹ", "ɻ", "ʀ", "ɾ", "r", "ʁ", "ɽ", "ɐ̯"}, true, project.Segmenter),
+                        new UnnaturalClass("U", new[] {"œ", "ɞ", "ɔ", "ø", "ɵ", "o", "õ", "ó", "ò", "ō", "ɶ", "ô", "ɷ"}, true, project.Segmenter),
+                        new UnnaturalClass("T", new[] {"t", "d", "ȶ", "ȡ", "ɗ", "ʈ", "ɖ"}, true, project.Segmenter),
+                        new UnnaturalClass("W", new[] {"w", "ʋ", "ⱱ"}, true, project.Segmenter),
+                        new UnnaturalClass("Y", new[] {"y", "ʏ", "ʉ", "u", "ᴜ", "ʊ", "ú", "ù"}, true, project.Segmenter),
 					};
 			}
 			else

@@ -42,6 +42,9 @@
                                         <DataTemplate DataType="{x:Type vm:DolgopolskyCognateIdentifierViewModel}">
                                             <v:DolgopolskyCognateIdentifierView />
                                         </DataTemplate>
+                                        <DataTemplate DataType="{x:Type vm:LexStatCognateIdentifierViewModel}">
+                                            <v:LexStatCognateIdentifierView />
+                                        </DataTemplate>
                                         <DataTemplate DataType="{x:Type vm:SyllabifierViewModel}">
                                             <v:SyllabifierView />
                                         </DataTemplate>
