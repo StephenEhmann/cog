@@ -27,11 +27,23 @@
                                         <DataTemplate DataType="{x:Type vm:ComponentOptionsViewModel}">
                                             <v:ComponentOptionsView />
                                         </DataTemplate>
+                                        <DataTemplate DataType="{x:Type vm:AlignmentOptionsViewModel}">
+                                            <v:AlignmentOptionsView />
+                                        </DataTemplate>
                                         <DataTemplate DataType="{x:Type vm:CognateIdentifierOptionsViewModel}">
                                             <v:CognateIdentifierOptionsView />
                                         </DataTemplate>
                                         <DataTemplate DataType="{x:Type vm:AlineViewModel}">
                                             <v:AlineView />
+                                        </DataTemplate>
+                                        <DataTemplate DataType="{x:Type vm:SCAAlignViewModel}">
+                                            <v:SCAAlignView />
+                                        </DataTemplate>
+                                        <DataTemplate DataType="{x:Type vm:EMSoundChangeInducerOptionsViewModel}">
+                                            <v:EMSoundChangeInducerOptionsView />
+                                        </DataTemplate>
+                                        <DataTemplate DataType="{x:Type vm:LexStatOptionsViewModel}">
+                                            <v:LexStatOptionsView />
                                         </DataTemplate>
                                         <DataTemplate DataType="{x:Type vm:BlairCognateIdentifierViewModel}">
                                             <v:BlairCognateIdentifierView />
@@ -42,8 +54,8 @@
                                         <DataTemplate DataType="{x:Type vm:DolgopolskyCognateIdentifierViewModel}">
                                             <v:DolgopolskyCognateIdentifierView />
                                         </DataTemplate>
-                                        <DataTemplate DataType="{x:Type vm:LexStatCognateIdentifierViewModel}">
-                                            <v:LexStatCognateIdentifierView />
+                                        <DataTemplate DataType="{x:Type vm:SCACognateIdentifierViewModel}">
+                                            <v:SCACognateIdentifierView />
                                         </DataTemplate>
                                         <DataTemplate DataType="{x:Type vm:SyllabifierViewModel}">
                                             <v:SyllabifierView />

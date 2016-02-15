@@ -85,12 +85,16 @@ namespace SIL.Cog.Presentation
 			// Component settings view models
 			builder.RegisterType<SyllabifierViewModel>().SingleInstance();
 			builder.RegisterType<PoorMansAffixIdentifierViewModel>().SingleInstance();
-			builder.RegisterType<AlineViewModel>().SingleInstance();
-			builder.RegisterType<CognateIdentifierOptionsViewModel>().SingleInstance();
-			builder.RegisterType<BlairCognateIdentifierViewModel>().SingleInstance();
+            builder.RegisterType<AlignmentOptionsViewModel>().SingleInstance();
+            builder.RegisterType<AlineViewModel>().SingleInstance();
+            builder.RegisterType<SCAAlignViewModel>().SingleInstance();
+            builder.RegisterType<CognateIdentifierOptionsViewModel>().SingleInstance();
+            builder.RegisterType<EMSoundChangeInducerOptionsViewModel>().SingleInstance();
+            builder.RegisterType<LexStatOptionsViewModel>().SingleInstance();
+            builder.RegisterType<BlairCognateIdentifierViewModel>().SingleInstance();
 			builder.RegisterType<ThresholdCognateIdentifierViewModel>().SingleInstance();
 			builder.RegisterType<DolgopolskyCognateIdentifierViewModel>().SingleInstance();
-            builder.RegisterType<LexStatCognateIdentifierViewModel>().SingleInstance();
+            builder.RegisterType<SCACognateIdentifierViewModel>().SingleInstance();
 
 			// Multiple instance view models
 			builder.RegisterType<WordListsVarietyViewModel>();

@@ -10,38 +10,33 @@ namespace SIL.Cog.Application.ViewModels
 		private readonly IProjectService _projectService;
 		private double _initialAlignmentThreshold;
 
-		public CognateIdentifierOptionsViewModel(SegmentPool segmentPool, IProjectService projectService, BlairCognateIdentifierViewModel blairCognateIdentifier,
-            ThresholdCognateIdentifierViewModel thresholdCognateIdentifier, DolgopolskyCognateIdentifierViewModel dolgopolskyCognateIdentifier, LexStatCognateIdentifierViewModel lexStatCognateIdentifier)
-            : base("Likely cognate identification", "Method", blairCognateIdentifier, thresholdCognateIdentifier, dolgopolskyCognateIdentifier, lexStatCognateIdentifier)
+        public CognateIdentifierOptionsViewModel(SegmentPool segmentPool, IProjectService projectService, EMSoundChangeInducerOptionsViewModel em,
+            LexStatOptionsViewModel lexStat)
+			: base("Cognacy", "Method", em, lexStat)
 		{
 			_segmentPool = segmentPool;
 			_projectService = projectService;
-		}
-
-		public override void Setup()
-		{
-			ICognateIdentifier cognateIdentifier = _projectService.Project.CognateIdentifiers[ComponentIdentifiers.PrimaryCognateIdentifier];
-			int index = -1;
-			if (cognateIdentifier is BlairCognateIdentifier)
-				index = 0;
-			else if (cognateIdentifier is ThresholdCognateIdentifier)
-				index = 1;
-			else if (cognateIdentifier is DolgopolskyCognateIdentifier)
-				index = 2;
-            else if (cognateIdentifier is LexStatCognateIdentifier)
-                index = 3;
-			SelectedOption = Options[index];
-
-			var wordPairGenerator = (CognacyWordPairGenerator) _projectService.Project.VarietyPairProcessors[ComponentIdentifiers.WordPairGenerator];
-			Set(() => InitialAlignmentThreshold, ref _initialAlignmentThreshold, wordPairGenerator.InitialAlignmentThreshold);
-
-			base.Setup();
 		}
 
 		public double InitialAlignmentThreshold
 		{
 			get { return _initialAlignmentThreshold; }
 			set { SetChanged(() => InitialAlignmentThreshold, ref _initialAlignmentThreshold, value); }
+		}
+
+		public override void Setup()
+		{
+			IProcessor<VarietyPair> statisticalMethod = _projectService.Project.StatisticalMethods[ComponentIdentifiers.PrimaryStatisticalMethod];
+			int index = -1;
+            if (statisticalMethod is EMSoundChangeInducer)
+				index = 0;
+            else if (statisticalMethod is LexStat)
+				index = 1;
+			SelectedOption = Options[index];
+
+			var wordPairGenerator = (CognacyWordPairGenerator)_projectService.Project.VarietyPairProcessors[ComponentIdentifiers.WordPairGenerator];
+			Set(() => InitialAlignmentThreshold, ref _initialAlignmentThreshold, wordPairGenerator.InitialAlignmentThreshold);
+			base.Setup();
 		}
 
 		public override object UpdateComponent()

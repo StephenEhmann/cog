@@ -84,6 +84,9 @@
 	<xs:complexType name="CognateIdentifierBase" abstract="true">
 		<xs:attribute name="id" type="xs:string" use="required" />
 	</xs:complexType>
+	<xs:complexType name="StatisticalMethodBase" abstract="true">
+		<xs:attribute name="id" type="xs:string" use="required" />
+	</xs:complexType>
 	<xs:complexType name="ProjectProcessorBase" abstract="true">
 		<xs:attribute name="id" type="xs:string" use="required" />
 	</xs:complexType>
@@ -100,6 +103,11 @@
 		</xs:complexType>
 	</xs:element>
 	<xs:element name="ApplicableCognateIdentifier">
+		<xs:complexType>
+			<xs:attribute name="ref" type="xs:string" use="required" />
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="ApplicableStatisticalMethod">
 		<xs:complexType>
 			<xs:attribute name="ref" type="xs:string" use="required" />
 		</xs:complexType>
@@ -133,6 +141,36 @@
 					</xs:element>
 					<xs:element name="SoundChangeScoringEnabled" minOccurs="0" maxOccurs="1" type="xs:boolean" />
 					<xs:element name="SyllablePositionCostEnabled" minOccurs="0" maxOccurs="1" type="xs:boolean" />
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="SCAAlign">
+		<xs:complexContent>
+			<xs:extension base="WordAlignerBase">
+				<xs:sequence>
+					<xs:element name="RelevantFeatures">
+						<xs:complexType>
+							<xs:sequence>
+								<xs:element name="RelevantFeature" minOccurs="1" maxOccurs="unbounded">
+									<xs:complexType>
+										<xs:sequence>
+											<xs:element name="RelevantValue" minOccurs="1" maxOccurs="unbounded">
+												<xs:complexType>
+													<xs:attribute name="ref" type="xs:string" use="required" />
+													<xs:attribute name="metric" type="xs:int" use="required" />
+												</xs:complexType>
+											</xs:element>
+										</xs:sequence>
+										<xs:attribute name="ref" type="xs:string" use="required" />
+										<xs:attribute name="vowel" type="xs:boolean" />
+										<xs:attribute name="consonant" type="xs:boolean" />
+										<xs:attribute name="weight" type="xs:int" use="required" />
+									</xs:complexType>
+								</xs:element>
+							</xs:sequence>
+						</xs:complexType>
+					</xs:element>
 				</xs:sequence>
 			</xs:extension>
 		</xs:complexContent>
@@ -203,10 +241,11 @@
 			</xs:extension>
 		</xs:complexContent>
 	</xs:complexType>
-	<xs:complexType name="EMSoundChangeInducer">
+	<xs:complexType name="StatisticalProcessor">
 		<xs:complexContent>
 			<xs:extension base="VarietyPairProcessorBase">
 				<xs:sequence>
+					<xs:element ref="ApplicableStatisticalMethod" />
 					<xs:element ref="ApplicableWordAligner" />
 					<xs:element ref="ApplicableCognateIdentifier" />
 				</xs:sequence>
@@ -294,7 +333,7 @@
 			</xs:extension>
 		</xs:complexContent>
 	</xs:complexType>
-  <xs:complexType name="LexStatCognateIdentifier">
+  <xs:complexType name="SCACognateIdentifier">
     <xs:complexContent>
       <xs:extension base="CognateIdentifierBase">
         <xs:sequence>
@@ -318,6 +357,26 @@
 			<xs:extension base="CognateIdentifierBase">
 				<xs:sequence>
 					<xs:element name="Threshold" type="xs:double" />
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="EMSoundChangeInducer">
+		<xs:complexContent>
+			<xs:extension base="StatisticalMethodBase">
+				<xs:sequence>
+					<xs:element ref="ApplicableWordAligner" />
+					<xs:element ref="ApplicableCognateIdentifier" />
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="LexStat">
+		<xs:complexContent>
+			<xs:extension base="StatisticalMethodBase">
+				<xs:sequence>
+					<xs:element ref="ApplicableWordAligner" />
+					<xs:element ref="ApplicableCognateIdentifier" />
 				</xs:sequence>
 			</xs:extension>
 		</xs:complexContent>
@@ -369,6 +428,13 @@
 					<xs:complexType>
 						<xs:sequence>
 							<xs:element name="CognateIdentifier" type="CognateIdentifierBase" minOccurs="0" maxOccurs="unbounded" />
+						</xs:sequence>
+					</xs:complexType>
+				</xs:element>
+				<xs:element name="StatisticalMethods">
+					<xs:complexType>
+						<xs:sequence>
+							<xs:element name="StatisticalMethod" type="StatisticalMethodBase" minOccurs="0" maxOccurs="unbounded" />
 						</xs:sequence>
 					</xs:complexType>
 				</xs:element>
@@ -527,6 +593,14 @@
 		</xs:key>
 		<xs:keyref name="CognateIdentifierKeyRef" refer="CognateIdentifierKey">
 			<xs:selector xpath="ApplicableCognateIdentifier" />
+			<xs:field xpath="@ref" />
+		</xs:keyref>
+		<xs:key name="StatisticalProcessorKey">
+			<xs:selector xpath="StatisticalMethod" />
+			<xs:field xpath="@id" />
+		</xs:key>
+		<xs:keyref name="StatisticalProcessorKeyRef" refer="StatisticalProcessorKey">
+			<xs:selector xpath="ApplicableStatisticalMethod" />
 			<xs:field xpath="@ref" />
 		</xs:keyref>
 		<xs:keyref name="RelevantFeatureKeyRef" refer="FeatureKey">

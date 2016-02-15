@@ -6,7 +6,7 @@ using SIL.Machine.Annotations;
 
 namespace SIL.Cog.Domain.Config.Components
 {
-	public class LexStatCognateIdentifierConfig : IComponentConfig<ICognateIdentifier>
+	public class SCACognateIdentifierConfig : IComponentConfig<ICognateIdentifier>
 	{
 		public ICognateIdentifier Load(SpanFactory<ShapeNode> spanFactory, SegmentPool segmentPool, CogProject project, XElement elem)
 		{
@@ -14,12 +14,12 @@ namespace SIL.Cog.Domain.Config.Components
 			Debug.Assert(soundClassesElem != null);
 			IEnumerable<SoundClass> soundClasses = ConfigManager.LoadSoundClasses(project.Segmenter, project.FeatureSystem, soundClassesElem);
 			var threshold = (int) elem.Element(ConfigManager.Cog + "InitialEquivalenceThreshold");
-			return new LexStatCognateIdentifier(segmentPool, soundClasses, threshold);
+			return new SCACognateIdentifier(segmentPool, soundClasses, threshold);
 		}
 
 		public void Save(ICognateIdentifier component, XElement elem)
 		{
-			var lexStat = (LexStatCognateIdentifier) component;
+			var lexStat = (SCACognateIdentifier) component;
 			elem.Add(new XElement(ConfigManager.Cog + "SoundClasses", ConfigManager.SaveSoundClasses(lexStat.SoundClasses)));
 			elem.Add(new XElement(ConfigManager.Cog + "InitialEquivalenceThreshold", lexStat.InitialEquivalenceThreshold));
 		}

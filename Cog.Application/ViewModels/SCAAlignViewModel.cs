@@ -10,31 +10,31 @@ using SIL.Machine.SequenceAlignment;
 
 namespace SIL.Cog.Application.ViewModels
 {
-	public enum AlineMode
+	public enum SCAAlignMode
 	{
 		[Description("Full (global)")]
 		Global,
 		[Description("Partial (local)")]
 		Local,
-		[Description("Beginning (half-local)")]
-		HalfLocal,
-		[Description("Hybrid (semi-global)")]
-		SemiGlobal
+        [Description("Beginning (half-local)")]
+        HalfLocal,
+        [Description("Hybrid (semi-global)")]
+        SemiGlobal
 	}
 
-	public class AlineViewModel : ComponentSettingsViewModelBase
+	public class SCAAlignViewModel : ComponentSettingsViewModelBase
 	{
 		private readonly SegmentPool _segmentPool;
 		private readonly IProjectService _projectService;
-		private AlineMode _mode;
+		private SCAAlignMode _mode;
 		private bool _expansionCompressionEnabled;
 		private ReadOnlyList<RelevantFeatureViewModel> _features;
 		private readonly SoundClassesViewModel _soundClasses;
 		private bool _soundChangeScoringEnabled;
 		private bool _syllablePositionCostEnabled;
 
-		public AlineViewModel(SegmentPool segmentPool, IProjectService projectService, SoundClassesViewModel soundClasses)
-			: base("Aline")
+		public SCAAlignViewModel(SegmentPool segmentPool, IProjectService projectService, SoundClassesViewModel soundClasses)
+			: base("SCA")
 		{
 			_segmentPool = segmentPool;
 			_projectService = projectService;
@@ -43,13 +43,13 @@ namespace SIL.Cog.Application.ViewModels
 		}
 
 		public override void Setup()
-        {
+		{
             _soundClasses.SelectedSoundClass = null;
             _soundClasses.SoundClasses.Clear();
 
             IWordAligner aligner = _projectService.Project.WordAligners[ComponentIdentifiers.PrimaryWordAligner];
-            var aline = aligner as Aline;
-            if (aline == null)
+            var sca = aligner as SCAAlign;
+            if (sca == null)
             {
                 Set(() => Features, ref _features, null);
                 Set(() => ExpansionCompressionEnabled, ref _expansionCompressionEnabled, false);
@@ -59,38 +59,38 @@ namespace SIL.Cog.Application.ViewModels
             else
             {
                 var features = new List<RelevantFeatureViewModel>();
-			    foreach (KeyValuePair<SymbolicFeature, int> kvp in aline.FeatureWeights)
+			    foreach (KeyValuePair<SymbolicFeature, int> kvp in sca.FeatureWeights)
 			    {
-				    var vm = new RelevantFeatureViewModel(kvp.Key, kvp.Value, aline.RelevantVowelFeatures.Contains(kvp.Key), aline.RelevantConsonantFeatures.Contains(kvp.Key), aline.ValueMetrics);
+				    var vm = new RelevantFeatureViewModel(kvp.Key, kvp.Value, sca.RelevantVowelFeatures.Contains(kvp.Key), sca.RelevantConsonantFeatures.Contains(kvp.Key), sca.ValueMetrics);
 				    vm.PropertyChanged += ChildPropertyChanged;
 				    features.Add(vm);
 			    }
 			    Set(() => Features, ref _features, new ReadOnlyList<RelevantFeatureViewModel>(features));
-			    switch (aline.Settings.Mode)
+			    switch (sca.Settings.Mode)
 			    {
 				    case AlignmentMode.Local:
-					    Set(() => Mode, ref _mode, AlineMode.Local);
+					    Set(() => Mode, ref _mode, SCAAlignMode.Local);
 					    break;
 				    case AlignmentMode.Global:
-					    Set(() => Mode, ref _mode, AlineMode.Global);
+					    Set(() => Mode, ref _mode, SCAAlignMode.Global);
 					    break;
-				    case AlignmentMode.SemiGlobal:
-					    Set(() => Mode, ref _mode, AlineMode.SemiGlobal);
+                    case AlignmentMode.SemiGlobal:
+                        Set(() => Mode, ref _mode, SCAAlignMode.SemiGlobal);
 					    break;
-				    case AlignmentMode.HalfLocal:
-					    Set(() => Mode, ref _mode, AlineMode.HalfLocal);
+                    case AlignmentMode.HalfLocal:
+                        Set(() => Mode, ref _mode, SCAAlignMode.HalfLocal);
 					    break;
 			    }
-			    Set(() => ExpansionCompressionEnabled, ref _expansionCompressionEnabled, aline.Settings.ExpansionCompressionEnabled);
-			    Set(() => SoundChangeScoringEnabled, ref _soundChangeScoringEnabled, aline.Settings.SoundChangeScoringEnabled);
-			    Set(() => SyllablePositionCostEnabled, ref _syllablePositionCostEnabled, aline.Settings.SyllablePositionCostEnabled);
+			    Set(() => ExpansionCompressionEnabled, ref _expansionCompressionEnabled, sca.Settings.ExpansionCompressionEnabled);
+			    Set(() => SoundChangeScoringEnabled, ref _soundChangeScoringEnabled, sca.Settings.SoundChangeScoringEnabled);
+			    Set(() => SyllablePositionCostEnabled, ref _syllablePositionCostEnabled, sca.Settings.SyllablePositionCostEnabled);
 
-			    foreach (SoundClass soundClass in aline.ContextualSoundClasses)
+			    foreach (SoundClass soundClass in sca.ContextualSoundClasses)
 				    _soundClasses.SoundClasses.Add(new SoundClassViewModel(soundClass));
             }
 		}
 
-		public AlineMode Mode
+		public SCAAlignMode Mode
 		{
 			get { return _mode; }
 			set { SetChanged(() => Mode, ref _mode, value); }
@@ -136,19 +136,25 @@ namespace SIL.Cog.Application.ViewModels
 			var mode = AlignmentMode.Local;
 			switch (_mode)
 			{
-				case AlineMode.Local:
+				case SCAAlignMode.Local:
 					mode = AlignmentMode.Local;
 					break;
-				case AlineMode.Global:
+				case SCAAlignMode.Global:
 					mode = AlignmentMode.Global;
 					break;
-				case AlineMode.SemiGlobal:
-					mode = AlignmentMode.SemiGlobal;
+                case SCAAlignMode.SemiGlobal:
+                    mode = AlignmentMode.SemiGlobal;
 					break;
-				case AlineMode.HalfLocal:
-					mode = AlignmentMode.HalfLocal;
+                case SCAAlignMode.HalfLocal:
+                    mode = AlignmentMode.HalfLocal;
 					break;
 			}
+
+            if (_features == null)
+            {
+                var features = new List<RelevantFeatureViewModel>();
+                Set(() => Features, ref _features, new ReadOnlyList<RelevantFeatureViewModel>(features));
+            }
 
 			var relevantVowelFeatures = new List<SymbolicFeature>();
 			var relevantConsFeatures = new List<SymbolicFeature>();
@@ -165,8 +171,8 @@ namespace SIL.Cog.Application.ViewModels
 					valueMetrics[value.DomainSymbol] = value.Metric;
 			}
 
-			var aligner = new Aline(_segmentPool, relevantVowelFeatures, relevantConsFeatures, featureWeights, valueMetrics,
-				new AlineSettings
+			var aligner = new SCAAlign(_segmentPool, relevantVowelFeatures, relevantConsFeatures, featureWeights, valueMetrics,
+				new SCAAlignSettings
 				{
 					ExpansionCompressionEnabled = _expansionCompressionEnabled,
 					Mode = mode,

@@ -313,6 +313,7 @@ namespace SIL.Cog.Application.Services
 
 		private void SetupProject(ProgressViewModel vm, string path, string name, CogProject project)
 		{
+            Console.WriteLine("Setup Project");
 			_settingsService.LastProject = path;
 			if (MigrateProjectIfNeeded(vm, project))
 				_isChanged = true;
@@ -328,6 +329,7 @@ namespace SIL.Cog.Application.Services
 				string cacheFileName = Path.Combine(Path.GetTempPath(), Path.GetFileName(path) + ".cache");
 				if (File.Exists(cacheFileName))
 				{
+                    Console.WriteLine("using cached file " + cacheFileName);
 					if (vm != null)
 						vm.Text = "Loading cached results...";
 					bool delete = true;

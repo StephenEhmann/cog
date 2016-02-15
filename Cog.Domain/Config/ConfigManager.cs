@@ -180,6 +180,11 @@ namespace SIL.Cog.Domain.Config
 			foreach (XElement cognateIdentifierElem in cognateIdentifiersElem.Elements(Cog + "CognateIdentifier"))
 				LoadComponent(spanFactory, segmentPool, project, cognateIdentifierElem, project.CognateIdentifiers);
 
+			XElement statisticalMethodsElem = root.Element(Cog + "StatisticalMethods");
+			Debug.Assert(statisticalMethodsElem != null);
+			foreach (XElement statisticalMethodElem in statisticalMethodsElem.Elements(Cog + "StatisticalMethod"))
+				LoadComponent(spanFactory, segmentPool, project, statisticalMethodElem, project.StatisticalMethods);
+
 			var meanings = new Dictionary<string, Meaning>();
 			XElement meaningsElem = root.Element(Cog + "Meanings");
 			Debug.Assert(meaningsElem != null);

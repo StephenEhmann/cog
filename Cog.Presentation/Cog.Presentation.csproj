@@ -202,6 +202,18 @@
     <Compile Include="Views\AddUnnaturalClassSegmentDialog.xaml.cs">
       <DependentUpon>AddUnnaturalClassSegmentDialog.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Views\AlignmentOptionsView.xaml.cs">
+      <DependentUpon>AlignmentOptionsView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\LexStatOptionsView.xaml.cs">
+      <DependentUpon>LexStatOptionsView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\EMSoundChangeInducerOptionsView.xaml.cs">
+      <DependentUpon>EMSoundChangeInducerOptionsView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\SCAAlignView.xaml.cs">
+      <DependentUpon>SCAAlignView.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\BusyCursor.cs" />
     <Compile Include="Views\CognateIdentifierOptionsView.xaml.cs">
       <DependentUpon>CognateIdentifierOptionsView.xaml</DependentUpon>
@@ -209,8 +221,8 @@
     <Compile Include="Views\ComponentOptionsView.xaml.cs">
       <DependentUpon>ComponentOptionsView.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Views\LexStatCognateIdentifierView.xaml.cs">
-      <DependentUpon>LexStatCognateIdentifierView.xaml</DependentUpon>
+    <Compile Include="Views\SCACognateIdentifierView.xaml.cs">
+      <DependentUpon>SCACognateIdentifierView.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\DolgopolskyCognateIdentifierView.xaml.cs">
       <DependentUpon>DolgopolskyCognateIdentifierView.xaml</DependentUpon>
@@ -406,6 +418,22 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Views\AlignmentOptionsView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Views\LexStatOptionsView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Views\EMSoundChangeInducerOptionsView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Views\SCAAlignView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
     <Page Include="Views\CognateIdentifierOptionsView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -414,7 +442,7 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Views\LexStatCognateIdentifierView.xaml">
+    <Page Include="Views\SCACognateIdentifierView.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>

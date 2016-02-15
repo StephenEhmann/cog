@@ -1,4 +1,4 @@
-﻿<UserControl x:Class="SIL.Cog.Presentation.Views.LexStatCognateIdentifierView"
+﻿<UserControl x:Class="SIL.Cog.Presentation.Views.SCACognateIdentifierView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
@@ -7,7 +7,7 @@
              xmlns:vm="clr-namespace:SIL.Cog.Application.ViewModels;assembly=SIL.Cog.Application"
              xmlns:v="clr-namespace:SIL.Cog.Presentation.Views"
              mc:Ignorable="d" 
-             d:DesignHeight="300" d:DesignWidth="300" d:DataContext="{d:DesignInstance vm:LexStatCognateIdentifierViewModel}">
+             d:DesignHeight="300" d:DesignWidth="300" d:DataContext="{d:DesignInstance vm:SCACognateIdentifierViewModel}">
 	<Grid>
 		<Grid.Resources>
 			<Style TargetType="Label">

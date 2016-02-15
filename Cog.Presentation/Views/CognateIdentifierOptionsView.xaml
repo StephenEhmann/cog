@@ -22,7 +22,7 @@
 		<c:PercentageSlider HorizontalAlignment="Left" x:Name="ThresholdSlider" Grid.Row="0" Grid.Column="1" Value="{Binding InitialAlignmentThreshold}" Width="250" />
 		<Separator Grid.Row="1" Grid.ColumnSpan="2" Margin="0,10,0,10" Background="#FFD5DFE5" />
 		<Label Grid.Column="0" Grid.Row="2" Target="{Binding ElementName=TypeComboBox}" Margin="0,3,5,5" Padding="0,0,0,5" Content="{Binding OptionDisplayName}" ContentStringFormat="{}{0}:" />
-		<ComboBox Grid.Column="1" Grid.Row="2" Name="TypeComboBox" Width="150" HorizontalAlignment="Left" ItemsSource="{Binding Options}" Margin="0,3,0,5" SelectedItem="{Binding SelectedOption}" DisplayMemberPath="DisplayName" />
+		<ComboBox Grid.Column="1" Grid.Row="2" Name="TypeComboBox" Width="250" HorizontalAlignment="Left" ItemsSource="{Binding Options}" Margin="0,3,0,5" SelectedItem="{Binding SelectedOption}" DisplayMemberPath="DisplayName" />
 		<ContentPresenter Grid.Row="3" Grid.ColumnSpan="2" Content="{Binding SelectedOption}" />
 	</Grid>
 </UserControl>

@@ -152,13 +152,14 @@ namespace SIL.Cog.Application.Services
 		private IEnumerable<IProcessor<VarietyPair>> GetCompareProcessors()
 		{
 			CogProject project = _projectService.Project;
-			var processors = new List<IProcessor<VarietyPair>>
+         	ICognateIdentifier cognateIdentifier = project.CognateIdentifiers[ComponentIdentifiers.PrimaryCognateIdentifier];
+            var processors = new List<IProcessor<VarietyPair>>
 				{
-					project.VarietyPairProcessors[ComponentIdentifiers.WordPairGenerator],
-					new EMSoundChangeInducer(_segmentPool, project, ComponentIdentifiers.PrimaryWordAligner, ComponentIdentifiers.PrimaryCognateIdentifier),
-					new SoundCorrespondenceIdentifier(_segmentPool, project, ComponentIdentifiers.PrimaryWordAligner)
-				};
-			return processors;
+				    project.VarietyPairProcessors[ComponentIdentifiers.WordPairGenerator],
+                    project.VarietyPairProcessors[ComponentIdentifiers.StatisticalProcessor],
+    				new SoundCorrespondenceIdentifier(_segmentPool, project, ComponentIdentifiers.PrimaryWordAligner)
+			    };
+            return processors;
 		}
 	}
 }

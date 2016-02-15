@@ -33,6 +33,9 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
+  <PropertyGroup>
+    <StartupObject />
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="GalaSoft.MvvmLight, Version=5.1.1.35051, Culture=neutral, PublicKeyToken=0e453835af4ee6ce, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
@@ -122,9 +125,13 @@
     <Compile Include="ViewModels\AddUnnaturalClassSegmentViewModel.cs" />
     <Compile Include="ViewModels\AffixViewModel.cs" />
     <Compile Include="ViewModels\AlignedNodeViewModel.cs" />
+    <Compile Include="ViewModels\AlignmentOptionsViewModel.cs" />
+    <Compile Include="ViewModels\LexStatOptionsViewModel.cs" />
+    <Compile Include="ViewModels\EMSoundChangeInducerOptionsViewModel.cs" />
+    <Compile Include="ViewModels\SCAAlignViewModel.cs" />
     <Compile Include="ViewModels\AlineViewModel.cs" />
     <Compile Include="ViewModels\AnalyzeViewModel.cs" />
-    <Compile Include="ViewModels\LexStatCognateIdentifierViewModel.cs" />
+    <Compile Include="ViewModels\SCACognateIdentifierViewModel.cs" />
     <Compile Include="ViewModels\SegmentMappingsChartSegmentPairViewModel.cs" />
     <Compile Include="ViewModels\SegmentMappingsChartSegmentViewModel.cs" />
     <Compile Include="ViewModels\SegmentMappingsChartViewModel.cs" />

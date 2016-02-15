@@ -4,9 +4,9 @@ namespace SIL.Cog.Application.ViewModels
 {
 	public class CompareSettingsViewModel : SettingsWorkspaceViewModelBase
 	{
-		public CompareSettingsViewModel(IProjectService projectService, IBusyService busyService, AlineViewModel alineViewModel,
+		public CompareSettingsViewModel(IProjectService projectService, IBusyService busyService, AlignmentOptionsViewModel alignmentOptionsViewModel,
 			CognateIdentifierOptionsViewModel cognateIdentifierOptionsViewModel)
-			: base("Comparison", projectService, busyService, alineViewModel, cognateIdentifierOptionsViewModel)
+			: base("Comparison", projectService, busyService, alignmentOptionsViewModel, cognateIdentifierOptionsViewModel)
 		{
 		}
 	}

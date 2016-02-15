@@ -5,13 +5,14 @@ using SIL.Machine.SequenceAlignment;
 
 namespace SIL.Cog.Domain.Components
 {
-	public class LexStatCognateIdentifier : ICognateIdentifier
+	public class SCACognateIdentifier : ICognateIdentifier
 	{
 		private readonly SegmentPool _segmentPool;
 		private readonly List<SoundClass> _soundClasses;
+        
 		private readonly int _initialEquivalenceThreshold;
 
-		public LexStatCognateIdentifier(SegmentPool segmentPool, IEnumerable<SoundClass> soundClasses, int initialEquivalenceThreshold)
+		public SCACognateIdentifier(SegmentPool segmentPool, IEnumerable<SoundClass> soundClasses, int initialEquivalenceThreshold)
 		{
 			_segmentPool = segmentPool;
 			_soundClasses = soundClasses.ToList();

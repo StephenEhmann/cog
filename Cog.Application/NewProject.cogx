@@ -2312,6 +2312,12 @@
 			</SimilarSegments>
 		</CognateIdentifier>
 	</CognateIdentifiers>
+	<StatisticalMethods>
+		<StatisticalMethod id="primary" xsi:type="EMSoundChangeInducer">
+			<ApplicableWordAligner ref="primary" />
+			<ApplicableCognateIdentifier ref="primary" />
+		</StatisticalMethod>
+	</StatisticalMethods>
 	<Meanings />
 	<Varieties />
 	<ProjectProcessors />
@@ -2420,6 +2426,11 @@
 	<VarietyPairProcessors>
 		<VarietyPairProcessor id="wordPairGenerator" xsi:type="CognacyWordPairGenerator">
 			<InitialAlignmentThreshold>0.3</InitialAlignmentThreshold>
+			<ApplicableWordAligner ref="primary" />
+			<ApplicableCognateIdentifier ref="primary" />
+		</VarietyPairProcessor>
+		<VarietyPairProcessor id="statisticalProcessor" xsi:type="StatisticalProcessor">
+			<ApplicableStatisticalMethod ref="primary" />
 			<ApplicableWordAligner ref="primary" />
 			<ApplicableCognateIdentifier ref="primary" />
 		</VarietyPairProcessor>
