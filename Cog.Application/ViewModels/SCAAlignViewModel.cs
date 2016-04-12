@@ -27,11 +27,8 @@ namespace SIL.Cog.Application.ViewModels
 		private readonly SegmentPool _segmentPool;
 		private readonly IProjectService _projectService;
 		private SCAAlignMode _mode;
-		private bool _expansionCompressionEnabled;
 		private ReadOnlyList<RelevantFeatureViewModel> _features;
 		private readonly SoundClassesViewModel _soundClasses;
-		private bool _soundChangeScoringEnabled;
-		private bool _syllablePositionCostEnabled;
 
 		public SCAAlignViewModel(SegmentPool segmentPool, IProjectService projectService, SoundClassesViewModel soundClasses)
 			: base("SCA")
@@ -52,9 +49,6 @@ namespace SIL.Cog.Application.ViewModels
             if (sca == null)
             {
                 Set(() => Features, ref _features, null);
-                Set(() => ExpansionCompressionEnabled, ref _expansionCompressionEnabled, false);
-                Set(() => SoundChangeScoringEnabled, ref _soundChangeScoringEnabled, false);
-                Set(() => SyllablePositionCostEnabled, ref _syllablePositionCostEnabled, false);
             }
             else
             {
@@ -81,9 +75,6 @@ namespace SIL.Cog.Application.ViewModels
                         Set(() => Mode, ref _mode, SCAAlignMode.HalfLocal);
 					    break;
 			    }
-			    Set(() => ExpansionCompressionEnabled, ref _expansionCompressionEnabled, sca.Settings.ExpansionCompressionEnabled);
-			    Set(() => SoundChangeScoringEnabled, ref _soundChangeScoringEnabled, sca.Settings.SoundChangeScoringEnabled);
-			    Set(() => SyllablePositionCostEnabled, ref _syllablePositionCostEnabled, sca.Settings.SyllablePositionCostEnabled);
 
 			    foreach (SoundClass soundClass in sca.ContextualSoundClasses)
 				    _soundClasses.SoundClasses.Add(new SoundClassViewModel(soundClass));
@@ -96,12 +87,6 @@ namespace SIL.Cog.Application.ViewModels
 			set { SetChanged(() => Mode, ref _mode, value); }
 		}
 
-		public bool ExpansionCompressionEnabled
-		{
-			get { return _expansionCompressionEnabled; }
-			set { SetChanged(() => ExpansionCompressionEnabled, ref _expansionCompressionEnabled, value); }
-		}
-
 		public ReadOnlyList<RelevantFeatureViewModel> Features
 		{
 			get { return _features; }
@@ -110,18 +95,6 @@ namespace SIL.Cog.Application.ViewModels
 		public SoundClassesViewModel SoundClasses
 		{
 			get { return _soundClasses; }
-		}
-
-		public bool SoundChangeScoringEnabled
-		{
-			get { return _soundChangeScoringEnabled; }
-			set { SetChanged(() => SoundChangeScoringEnabled, ref _soundChangeScoringEnabled, value); }
-		}
-
-		public bool SyllablePositionCostEnabled
-		{
-			get { return _syllablePositionCostEnabled; }
-			set { SetChanged(() => SyllablePositionCostEnabled, ref _syllablePositionCostEnabled, value); }
 		}
 
 		public override void AcceptChanges()
@@ -174,11 +147,9 @@ namespace SIL.Cog.Application.ViewModels
 			var aligner = new SCAAlign(_segmentPool, relevantVowelFeatures, relevantConsFeatures, featureWeights, valueMetrics,
 				new SCAAlignSettings
 				{
-					ExpansionCompressionEnabled = _expansionCompressionEnabled,
+					ExpansionCompressionEnabled = false,
 					Mode = mode,
 					ContextualSoundClasses = _soundClasses.SoundClasses.Select(nc => nc.DomainSoundClass),
-					SoundChangeScoringEnabled = _soundChangeScoringEnabled,
-					SyllablePositionCostEnabled = _syllablePositionCostEnabled
 				});
 			_projectService.Project.WordAligners[ComponentIdentifiers.PrimaryWordAligner] = aligner;
 			return aligner;

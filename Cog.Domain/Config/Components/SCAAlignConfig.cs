@@ -37,9 +37,6 @@ namespace SIL.Cog.Domain.Config.Components
 				}
 			}
 
-            settings.SoundChangeScoringEnabled = (bool?)elem.Element(ConfigManager.Cog + "SoundChangeScoringEnabled") ?? true;
-            settings.SyllablePositionCostEnabled = (bool?)elem.Element(ConfigManager.Cog + "SyllablePositionCostEnabled") ?? true;
-
 			return new SCAAlign(segmentPool, relevantVowelFeatures, relevantConsFeatures, featureWeights, valueMetrics, settings);
 		}
 
@@ -53,8 +50,6 @@ namespace SIL.Cog.Domain.Config.Components
 					new XAttribute("consonant", SCAAlign.RelevantConsonantFeatures.Contains(kvp.Key)),
 					kvp.Key.PossibleSymbols.Select(fs =>
 						new XElement(ConfigManager.Cog + "RelevantValue", new XAttribute("ref", fs.ID), new XAttribute("metric", SCAAlign.ValueMetrics[fs])))))));
-            elem.Add(new XElement(ConfigManager.Cog + "SoundChangeScoringEnabled", SCAAlign.Settings.SoundChangeScoringEnabled));
-            elem.Add(new XElement(ConfigManager.Cog + "SyllablePositionCostEnabled", SCAAlign.Settings.SyllablePositionCostEnabled));
 		}
 	}
 }

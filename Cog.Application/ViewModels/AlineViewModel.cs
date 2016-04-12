@@ -150,6 +150,12 @@ namespace SIL.Cog.Application.ViewModels
 					break;
 			}
 
+			if (_features == null)
+			{
+				var features = new List<RelevantFeatureViewModel>();
+				Set(() => Features, ref _features, new ReadOnlyList<RelevantFeatureViewModel>(features));
+			}
+
 			var relevantVowelFeatures = new List<SymbolicFeature>();
 			var relevantConsFeatures = new List<SymbolicFeature>();
 			var featureWeights = new Dictionary<SymbolicFeature, int>();

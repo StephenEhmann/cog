@@ -5,7 +5,7 @@
 		private bool _soundChangeScoringEnabled = true;
 		private bool _syllablePositionCostEnabled = true;
 
-		public bool SoundChangeScoringEnabled 
+		public bool SoundChangeScoringEnabled
 		{
 			get { return _soundChangeScoringEnabled; }
 			set

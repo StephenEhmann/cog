@@ -23,7 +23,7 @@ namespace SIL.Cog.Domain.Components
 		{
 			_settings = settings;
 			_scorer = new SCAAlignScorer(segmentPool, relevantVowelFeatures, relevantConsFeatures, featureWeights, valueMetrics,
-				settings.ContextualSoundClasses, settings.SoundChangeScoringEnabled, settings.SyllablePositionCostEnabled);
+				settings.ContextualSoundClasses);
 		}
 
 		public IReadOnlySet<SymbolicFeature> RelevantVowelFeatures

@@ -1,5 +1,6 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using SIL.Collections;
 using SIL.Machine.Annotations;
@@ -12,88 +13,78 @@ namespace SIL.Cog.Domain.Components
 {
 	public class SCAAlignScorer : IPairwiseAlignmentScorer<Word, ShapeNode>
 	{
-		private const int MaxSoundChangeScore = 800;
 		private const int MaxSubstitutionScore = 3500;
-		private const int MaxExpansionCompressionScore = 4500;
 		private const int IndelCost = 1000;
-		private const int VowelCost = 0;
-		private const int SyllablePositionCost = 500;
 
 		private readonly SegmentPool _segmentPool;
 		private readonly IReadOnlySet<SymbolicFeature> _relevantConsFeatures;
 		private readonly IReadOnlySet<SymbolicFeature> _relevantVowelFeatures; 
 		private readonly IReadOnlyDictionary<SymbolicFeature, int> _featureWeights;
 		private readonly IReadOnlyDictionary<FeatureSymbol, int> _valueMetrics;
-		private readonly SoundClass[] _contextualSoundClasses;
-		private readonly bool _soundChangeScoringEnabled;
-		private readonly bool _syllablePositionCostEnabled;
-        private readonly double[][] _scoringMatrix;
+		private readonly List<SoundClass> _soundClasses;
+        private readonly int[][] _scoringMatrix;
 
         public SCAAlignScorer(SegmentPool segmentPool, IEnumerable<SymbolicFeature> relevantVowelFeatures, IEnumerable<SymbolicFeature> relevantConsFeatures,
-			IDictionary<SymbolicFeature, int> featureWeights, IDictionary<FeatureSymbol, int> valueMetrics, IEnumerable<SoundClass> contextualSoundClasses,
-			bool soundChangeScoringEnabled, bool syllablePositionCostEnabled)
+			IDictionary<SymbolicFeature, int> featureWeights, IDictionary<FeatureSymbol, int> valueMetrics, IEnumerable<SoundClass> contextualSoundClasses)
 		{
 			_segmentPool = segmentPool;
 			_relevantVowelFeatures = new IDBearerSet<SymbolicFeature>(relevantVowelFeatures).ToReadOnlySet();
 			_relevantConsFeatures = new IDBearerSet<SymbolicFeature>(relevantConsFeatures).ToReadOnlySet();
 			_featureWeights = new Dictionary<SymbolicFeature, int>(featureWeights).ToReadOnlyDictionary();
 			_valueMetrics = new Dictionary<FeatureSymbol, int>(valueMetrics).ToReadOnlyDictionary();
-			_contextualSoundClasses = contextualSoundClasses.ToArray();
-			_soundChangeScoringEnabled = soundChangeScoringEnabled;
-			_syllablePositionCostEnabled = syllablePositionCostEnabled;
+
+			IEnumerable<SoundClass> soundClasses;
+			soundClasses = new SoundClass[]
+					{
+                        new UnnaturalClass("A", new[] {"a", "ᴀ", "ã", "ɑ", "á", "à", "ā", "ǎ", "â"}, true, project.Segmenter, 0),
+                        new UnnaturalClass("B", new[] {"ɸ", "β", "f", "p͡f", "ƀ", "v", "ʙ"}, true, project.Segmenter, 1),
+                        new UnnaturalClass("C", new[] {"t͡s", "d͡z", "ʦ", "ʣ", "t͡ɕ", "d͡ʑ", "ʨ", "ʥ", "t͡ʃ", "d͡ʒ", "ʧ", "ʤ", "c", "ɟ", "t͡ʂ", "d͡ʐ", "č", "ž", "t͡θ", "ʄ"}, true, project.Segmenter, 2),
+                        new UnnaturalClass("D", new[] {"θ", "ð", "ŧ", "þ", "đ"}, true, project.Segmenter, 3),
+                        new UnnaturalClass("E", new[] {"ɛ", "æ", "ɜ", "ɐ", "ʌ", "e", "ᴇ", "ə", "ɘ", "ɤ", "è", "é", "ē", "ě", "ê", "ɚ", "ǝ", "ẽ"}, true, project.Segmenter, 4),
+                        new UnnaturalClass("G", new[] {"x", "ɣ", "χ"}, true, project.Segmenter, 5),
+                        new UnnaturalClass("H", new[] {"ʔ", "ħ", "ʕ", "h", "ɦ"}, true, project.Segmenter, 6),
+                        new UnnaturalClass("I", new[] {"i", "ɪ", "ɨ", "ɿ", "ʅ", "ɯ", "ĩ", "í", "ǐ", "ì", "î", "ī", "ı"}, true, project.Segmenter, 7),
+                        new UnnaturalClass("J", new[] {"j", "ɥ", "ɰ"}, true, project.Segmenter, 8),
+                        new UnnaturalClass("K", new[] {"k", "g", "q", "ɢ", "ɡ"}, true, project.Segmenter, 9),
+                        new UnnaturalClass("L", new[] {"l", "ȴ", "l", "ɭ", "ʎ", "ʟ", "ɬ", "ɮ", "ł", "ɫ"}, true, project.Segmenter,10),
+                        new UnnaturalClass("M", new[] {"m", "ɱ", "ʍ"}, true, project.Segmenter, 11),
+                        new UnnaturalClass("N", new[] {"n", "ȵ", "ɳ", "ŋ", "ɴ", "ň", "ń", "ɲ"}, true, project.Segmenter, 12),
+                        new UnnaturalClass("O", new[] {"Œ", "ɒ"}, true, project.Segmenter, 13),
+                        new UnnaturalClass("P", new[] {"p", "b", "ɓ"}, true, project.Segmenter, 14),
+                        new UnnaturalClass("R", new[] {"ɹ", "ɻ", "ʀ", "ɾ", "r", "ʁ", "ɽ", "ɐ̯"}, true, project.Segmenter, 15),
+                        new UnnaturalClass("S", new[] {"s", "z", "ʃ", "ʒ", "ʂ", "ʐ", "ç", "ʝ", "š", "ž", "ɕ", "ɧ", "ʑ"}, true, project.Segmenter, 16),
+                        new UnnaturalClass("T", new[] {"t", "d", "ȶ", "ȡ", "ɗ", "ʈ", "ɖ"}, true, project.Segmenter, 17),
+                        new UnnaturalClass("U", new[] {"œ", "ɞ", "ɔ", "ø", "ɵ", "o", "õ", "ó", "ò", "ō", "ɶ", "ô", "ɷ"}, true, project.Segmenter, 18),
+                        new UnnaturalClass("W", new[] {"w", "ʋ", "ⱱ"}, true, project.Segmenter, 19),
+                        new UnnaturalClass("Y", new[] {"y", "ʏ", "ʉ", "u", "ᴜ", "ʊ", "ú", "ù"}, true, project.Segmenter, 20),
+					};
+			_soundClasses = soundClasses.ToList();
 
             // Create the scoring matrix
-            _scoringMatrix = new double[][]
+			_scoringMatrix = new int[][]
             {
-                new double[] {5.00,-10.00,-10.00,-10.00,4.00,-10.00,-10.00,4.00,-6.00,-10.00,-10.00,-10.00,-10.00,4.00,-10.00,-10.00,-10.00,-10.00,4.00,-6.00,0.00,-10.00},
-                new double[] {-10.00,10.00,0.00,0.00,-10.00,0.00,0.00,-10.00,0.00,0.00,0.00,0.00,0.00,-10.00,6.00,0.00,0.00,0.00,-10.00,6.00,0.00,-10.00},
-                new double[] {-10.00,0.00,10.00,2.00,-10.00,2.00,2.00,-10.00,0.00,6.00,0.00,0.00,0.00,-10.00,0.00,0.00,6.00,6.00,-10.00,0.00,0.00,-10.00},
-                new double[] {-10.00,0.00,2.00,10.00,-10.00,0.00,2.00,-10.00,0.00,0.00,0.00,0.00,0.00,-10.00,0.00,0.00,6.00,6.00,-10.00,0.00,0.00,-10.00},
-                new double[] {4.00,-10.00,-10.00,-10.00,5.00,-10.00,-10.00,4.00,-6.00,-10.00,-10.00,-10.00,-10.00,4.00,-10.00,-10.00,-10.00,-10.00,4.00,-6.00,0.00,-10.00},
-                new double[] {-10.00,0.00,2.00,0.00,-10.00,10.00,2.00,-10.00,0.00,6.00,0.00,0.00,0.00,-10.00,0.00,0.00,6.00,0.00,-10.00,0.00,0.00,-10.00},
-                new double[] {-10.00,0.00,2.00,2.00,-10.00,2.00,10.00,-10.00,0.00,0.00,0.00,0.00,0.00,-10.00,0.00,0.00,6.00,0.00,-10.00,0.00,0.00,-10.00},
-                new double[] {4.00,-10.00,-10.00,-10.00,4.00,-10.00,-10.00,5.00,-5.00,-10.00,-10.00,-10.00,-10.00,4.00,-10.00,-10.00,-10.00,-10.00,3.00,-6.00,0.00,-10.00},
-                new double[] {-6.00,0.00,0.00,0.00,-6.00,0.00,0.00,-5.00,10.00,0.00,0.00,0.00,0.00,-6.00,0.00,0.00,0.00,0.00,-6.00,0.00,0.00,-10.00},
-                new double[] {-10.00,0.00,6.00,0.00,-10.00,6.00,0.00,-10.00,0.00,10.00,0.00,0.00,0.00,-10.00,0.00,0.00,2.00,0.00,-10.00,0.00,0.00,-10.00},
-                new double[] {-10.00,0.00,0.00,0.00,-10.00,0.00,0.00,-10.00,0.00,0.00,10.00,0.00,0.00,-10.00,0.00,4.00,0.00,0.00,-10.00,0.00,0.00,-10.00},
-                new double[] {-10.00,0.00,0.00,0.00,-10.00,0.00,0.00,-10.00,0.00,0.00,0.00,10.00,1.00,-10.00,0.00,0.00,0.00,0.00,-10.00,0.00,0.00,-10.00},
-                new double[] {-10.00,0.00,0.00,0.00,-10.00,0.00,0.00,-10.00,0.00,0.00,0.00,1.00,10.00,-10.00,0.00,0.00,0.00,0.00,-10.00,0.00,0.00,-10.00},
-                new double[] {4.00,-10.00,-10.00,-10.00,4.00,-10.00,-10.00,4.00,-6.00,-10.00,-10.00,-10.00,-10.00,5.00,-10.00,-10.00,-10.00,-10.00,4.00,-6.00,0.00,-10.00},
-                new double[] {-10.00,6.00,0.00,0.00,-10.00,0.00,0.00,-10.00,0.00,0.00,0.00,0.00,0.00,-10.00,10.00,0.00,0.00,0.00,-10.00,2.00,0.00,-10.00},
-                new double[] {-10.00,0.00,0.00,0.00,-10.00,0.00,0.00,-10.00,0.00,0.00,4.00,0.00,0.00,-10.00,0.00,10.00,0.00,0.00,-10.00,0.00,0.00,-10.00},
-                new double[] {-10.00,0.00,6.00,6.00,-10.00,6.00,6.00,-10.00,0.00,2.00,0.00,0.00,0.00,-10.00,0.00,0.00,10.00,2.00,-10.00,0.00,0.00,-10.00},
-                new double[] {-10.00,0.00,6.00,6.00,-10.00,0.00,0.00,-10.00,0.00,0.00,0.00,0.00,0.00,-10.00,0.00,0.00,2.00,10.00,-10.00,0.00,0.00,-10.00},
-                new double[] {4.00,-10.00,-10.00,-10.00,4.00,-10.00,-10.00,3.00,-6.00,-10.00,-10.00,-10.00,-10.00,4.00,-10.00,-10.00,-10.00,-10.00,5.00,-6.00,0.00,-10.00},
-                new double[] {-6.00,6.00,0.00,0.00,-6.00,0.00,0.00,-6.00,0.00,0.00,0.00,0.00,0.00,-6.00,2.00,0.00,0.00,0.00,-6.00,10.00,0.00,-10.00},
-                new double[] {0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00},
-                new double[] {4.00,-9.00,-10.00,-10.00,4.00,-10.00,-10.00,4.00,-6.00,-10.00,-10.00,-10.00,-10.00,4.00,-10.00,-10.00,-10.00,-10.00,4.00,-5.00,0.00,-10.00}
-            };
-            //double[][] x = new double[5][];
-            /*
-            _scoringMatrix = {{
-            A,-100.00,0.00,-20.00,-20.00,-20.00,-20.00,-20.00,-20.00,5.00,-10.00,-10.00,-10.00,4.00,-10.00,-10.00,4.00,-6.00,-10.00,-10.00,-10.00,-10.00,4.00,-10.00,-10.00,-10.00,-10.00,4.00,-6.00,0.00,4.00,-10.00
-            B,-100.00,0.00,-20.00,-20.00,-20.00,-20.00,-20.00,-20.00,-10.00,10.00,0.00,0.00,-10.00,0.00,0.00,-10.00,0.00,0.00,0.00,0.00,0.00,-10.00,6.00,0.00,0.00,0.00,-10.00,6.00,0.00,-9.00,-10.00
-            C,-100.00,0.00,-20.00,-20.00,-20.00,-20.00,-20.00,-20.00,-10.00,0.00,10.00,2.00,-10.00,2.00,2.00,-10.00,0.00,6.00,0.00,0.00,0.00,-10.00,0.00,0.00,6.00,6.00,-10.00,0.00,0.00,-10.00,-10.00
-            D,-100.00,0.00,-20.00,-20.00,-20.00,-20.00,-20.00,-20.00,-10.00,0.00,2.00,10.00,-10.00,0.00,2.00,-10.00,0.00,0.00,0.00,0.00,0.00,-10.00,0.00,0.00,6.00,6.00,-10.00,0.00,0.00,-10.00,-10.00
-            E,-100.00,0.00,-20.00,-20.00,-20.00,-20.00,-20.00,-20.00,4.00,-10.00,-10.00,-10.00,5.00,-10.00,-10.00,4.00,-6.00,-10.00,-10.00,-10.00,-10.00,4.00,-10.00,-10.00,-10.00,-10.00,4.00,-6.00,0.00,4.00,-10.00
-            G,-100.00,0.00,-20.00,-20.00,-20.00,-20.00,-20.00,-20.00,-10.00,0.00,2.00,0.00,-10.00,10.00,2.00,-10.00,0.00,6.00,0.00,0.00,0.00,-10.00,0.00,0.00,6.00,0.00,-10.00,0.00,0.00,-10.00,-10.00
-            H,-100.00,0.00,-20.00,-20.00,-20.00,-20.00,-20.00,-20.00,-10.00,0.00,2.00,2.00,-10.00,2.00,10.00,-10.00,0.00,0.00,0.00,0.00,0.00,-10.00,0.00,0.00,6.00,0.00,-10.00,0.00,0.00,-10.00,-10.00
-            I,-100.00,0.00,-20.00,-20.00,-20.00,-20.00,-20.00,-20.00,4.00,-10.00,-10.00,-10.00,4.00,-10.00,-10.00,5.00,-5.00,-10.00,-10.00,-10.00,-10.00,4.00,-10.00,-10.00,-10.00,-10.00,3.00,-6.00,0.00,4.00,-10.00
-            J,-100.00,0.00,-20.00,-20.00,-20.00,-20.00,-20.00,-20.00,-6.00,0.00,0.00,0.00,-6.00,0.00,0.00,-5.00,10.00,0.00,0.00,0.00,0.00,-6.00,0.00,0.00,0.00,0.00,-6.00,0.00,0.00,-6.00,-10.00
-            K,-100.00,0.00,-20.00,-20.00,-20.00,-20.00,-20.00,-20.00,-10.00,0.00,6.00,0.00,-10.00,6.00,0.00,-10.00,0.00,10.00,0.00,0.00,0.00,-10.00,0.00,0.00,2.00,0.00,-10.00,0.00,0.00,-10.00,-10.00
-            L,-100.00,0.00,-20.00,-20.00,-20.00,-20.00,-20.00,-20.00,-10.00,0.00,0.00,0.00,-10.00,0.00,0.00,-10.00,0.00,0.00,10.00,0.00,0.00,-10.00,0.00,4.00,0.00,0.00,-10.00,0.00,0.00,-10.00,-10.00
-            M,-100.00,0.00,-20.00,-20.00,-20.00,-20.00,-20.00,-20.00,-10.00,0.00,0.00,0.00,-10.00,0.00,0.00,-10.00,0.00,0.00,0.00,10.00,1.00,-10.00,0.00,0.00,0.00,0.00,-10.00,0.00,0.00,-10.00,-10.00
-            N,-100.00,0.00,-20.00,-20.00,-20.00,-20.00,-20.00,-20.00,-10.00,0.00,0.00,0.00,-10.00,0.00,0.00,-10.00,0.00,0.00,0.00,1.00,10.00,-10.00,0.00,0.00,0.00,0.00,-10.00,0.00,0.00,-10.00,-10.00
-            O,-100.00,0.00,-20.00,-20.00,-20.00,-20.00,-20.00,-20.00,4.00,-10.00,-10.00,-10.00,4.00,-10.00,-10.00,4.00,-6.00,-10.00,-10.00,-10.00,-10.00,5.00,-10.00,-10.00,-10.00,-10.00,4.00,-6.00,0.00,4.00,-10.00
-            P,-100.00,0.00,-20.00,-20.00,-20.00,-20.00,-20.00,-20.00,-10.00,6.00,0.00,0.00,-10.00,0.00,0.00,-10.00,0.00,0.00,0.00,0.00,0.00,-10.00,10.00,0.00,0.00,0.00,-10.00,2.00,0.00,-10.00,-10.00
-            R,-100.00,0.00,-20.00,-20.00,-20.00,-20.00,-20.00,-20.00,-10.00,0.00,0.00,0.00,-10.00,0.00,0.00,-10.00,0.00,0.00,4.00,0.00,0.00,-10.00,0.00,10.00,0.00,0.00,-10.00,0.00,0.00,-10.00,-10.00
-            S,-100.00,0.00,-20.00,-20.00,-20.00,-20.00,-20.00,-20.00,-10.00,0.00,6.00,6.00,-10.00,6.00,6.00,-10.00,0.00,2.00,0.00,0.00,0.00,-10.00,0.00,0.00,10.00,2.00,-10.00,0.00,0.00,-10.00,-10.00
-            T,-100.00,0.00,-20.00,-20.00,-20.00,-20.00,-20.00,-20.00,-10.00,0.00,6.00,6.00,-10.00,0.00,0.00,-10.00,0.00,0.00,0.00,0.00,0.00,-10.00,0.00,0.00,2.00,10.00,-10.00,0.00,0.00,-10.00,-10.00
-            U,-100.00,0.00,-20.00,-20.00,-20.00,-20.00,-20.00,-20.00,4.00,-10.00,-10.00,-10.00,4.00,-10.00,-10.00,3.00,-6.00,-10.00,-10.00,-10.00,-10.00,4.00,-10.00,-10.00,-10.00,-10.00,5.00,-6.00,0.00,4.00,-10.00
-            W,-100.00,0.00,-20.00,-20.00,-20.00,-20.00,-20.00,-20.00,-6.00,6.00,0.00,0.00,-6.00,0.00,0.00,-6.00,0.00,0.00,0.00,0.00,0.00,-6.00,2.00,0.00,0.00,0.00,-6.00,10.00,0.00,-5.00,-10.00
-            X,-5.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00
-            Y,-100.00,0.00,-20.00,-20.00,-20.00,-20.00,-20.00,-20.00,4.00,-9.00,-10.00,-10.00,4.00,-10.00,-10.00,4.00,-6.00,-10.00,-10.00,-10.00,-10.00,4.00,-10.00,-10.00,-10.00,-10.00,4.00,-5.00,0.00,5.00,-10.00
-            */
+                new int[] {500,-1000,-1000,-1000,400,-1000,-1000,400,-600,-1000,-1000,-1000,-1000,400,-1000,-1000,-1000,-1000,400,-600,400},
+                new int[] {-1000,1000,0,0,-1000,0,0,-1000,0,0,0,0,0,-1000,600,0,0,0,-1000,600,-900},
+                new int[] {-1000,0,1000,200,-1000,200,200,-1000,0,600,0,0,0,-1000,0,0,600,600,-1000,0,-1000},
+                new int[] {-1000,0,200,1000,-1000,0,200,-1000,0,0,0,0,0,-1000,0,0,600,600,-1000,0,-1000},
+                new int[] {400,-1000,-1000,-1000,500,-1000,-1000,400,-600,-1000,-1000,-1000,-1000,400,-1000,-1000,-1000,-1000,400,-600,400},
+                new int[] {-1000,0,200,0,-1000,1000,200,-1000,0,600,0,0,0,-1000,0,0,600,0,-1000,0,-1000},
+                new int[] {-1000,0,200,200,-1000,200,1000,-1000,0,0,0,0,0,-1000,0,0,600,0,-1000,0,-1000},
+                new int[] {400,-1000,-1000,-1000,400,-1000,-1000,500,-500,-1000,-1000,-1000,-1000,400,-1000,-1000,-1000,-1000,300,-600,400},
+                new int[] {-600,0,0,0,-600,0,0,-500,1000,0,0,0,0,-600,0,0,0,0,-600,0,-600},
+                new int[] {-1000,0,600,0,-1000,600,0,-1000,0,1000,0,0,0,-1000,0,0,200,0,-1000,0,-1000},
+                new int[] {-1000,0,0,0,-1000,0,0,-1000,0,0,1000,0,0,-1000,0,400,0,0,-1000,0,-1000},
+                new int[] {-1000,0,0,0,-1000,0,0,-1000,0,0,0,1000,100,-1000,0,0,0,0,-1000,0,-1000},
+                new int[] {-1000,0,0,0,-1000,0,0,-1000,0,0,0,100,1000,-1000,0,0,0,0,-1000,0,-1000},
+                new int[] {400,-1000,-1000,-1000,400,-1000,-1000,400,-600,-1000,-1000,-1000,-1000,500,-1000,-1000,-1000,-1000,400,-600,400},
+                new int[] {-1000,600,0,0,-1000,0,0,-1000,0,0,0,0,0,-1000,1000,0,0,0,-1000,200,-1000},
+                new int[] {-1000,0,0,0,-1000,0,0,-1000,0,0,400,0,0,-1000,0,1000,0,0,-1000,0,-1000},
+                new int[] {-1000,0,600,600,-1000,600,600,-1000,0,200,0,0,0,-1000,0,0,1000,200,-1000,0,-1000},
+                new int[] {-1000,0,600,600,-1000,0,0,-1000,0,0,0,0,0,-1000,0,0,200,1000,-1000,0,-1000},
+                new int[] {400,-1000,-1000,-1000,400,-1000,-1000,300,-600,-1000,-1000,-1000,-1000,400,-1000,-1000,-1000,-1000,500,-600,400},
+                new int[] {-600,600,0,0,-600,0,0,-600,0,0,0,0,0,-600,200,0,0,0,-600,1000,-500},
+                new int[] {400,-900,-1000,-1000,400,-1000,-1000,400,-600,-1000,-1000,-1000,-1000,400,-1000,-1000,-1000,-1000,400,-500,500}
+			};
 		}
 
 		public IReadOnlySet<SymbolicFeature> RelevantVowelFeatures
@@ -116,213 +107,64 @@ namespace SIL.Cog.Domain.Components
 			get { return _valueMetrics; }
 		}
 
-		public bool SoundChangeScoringEnabled
-		{
-			get { return _soundChangeScoringEnabled; }
-		}
-
-		public bool SyllablePositionCostEnabled
-		{
-			get { return _syllablePositionCostEnabled; }
-		}
-
 		public int GetGapPenalty(Word sequence1, Word sequence2)
 		{
+			// Completed, lingpy has -10.00 in its SCA matrix for this (_ row), so scale lingpy numbers by 100X
 			return -IndelCost;
 		}
 
 		public int GetInsertionScore(Word sequence1, ShapeNode p, Word sequence2, ShapeNode q)
 		{
-			return GetSoundChangeScore(sequence1, null, p, sequence2, q, null);
+			// Unused by SCA alignment
+			return 0;
 		}
 
 		public int GetDeletionScore(Word sequence1, ShapeNode p, Word sequence2, ShapeNode q)
 		{
-			return GetSoundChangeScore(sequence1, p, null, sequence2, null, q);
+			// Unused by SCA alignment
+			return 0;
 		}
 
+		//TODO
 		public int GetSubstitutionScore(Word sequence1, ShapeNode p, Word sequence2, ShapeNode q)
 		{
             // TODO: how to get number from shape node?
-            //return _scoringMatrix[]
-			return (MaxSubstitutionScore - (Delta(p.Annotation.FeatureStruct, q.Annotation.FeatureStruct) + GetVowelCost(p) + GetVowelCost(q) + GetSyllablePositionCost(p, q)))
-				+ GetSoundChangeScore(sequence1, p, null, sequence2, q, null);
+			//UnnaturalClass soundClass1 = FindSoundClass(p);
+			//UnnaturalClass soundClass2 = FindSoundClass(q);
+			//int index1 = soundClass1.Index();
+			//int index2 = soundClass2.Index();
+            //return _scoringMatrix[index1][index2];
+			return -1;
 		}
 
 		public int GetExpansionScore(Word sequence1, ShapeNode p, Word sequence2, ShapeNode q1, ShapeNode q2)
 		{
-			return (MaxExpansionCompressionScore - (Delta(p.Annotation.FeatureStruct, q1.Annotation.FeatureStruct) + Delta(p.Annotation.FeatureStruct, q2.Annotation.FeatureStruct)
-				+ GetVowelCost(p) + Math.Max(GetVowelCost(q1), GetVowelCost(q2)) + Math.Max(GetSyllablePositionCost(p, q1), GetSyllablePositionCost(p, q2))))
-				+ GetSoundChangeScore(sequence1, p, null, sequence2, q1, q2);
+			// Unused by SCA alignment
+			return 0;
 		}
 
 		public int GetCompressionScore(Word sequence1, ShapeNode p1, ShapeNode p2, Word sequence2, ShapeNode q)
 		{
-			return (MaxExpansionCompressionScore - (Delta(p1.Annotation.FeatureStruct, q.Annotation.FeatureStruct) + Delta(p2.Annotation.FeatureStruct, q.Annotation.FeatureStruct)
-				+ GetVowelCost(q) + Math.Max(GetVowelCost(p1), GetVowelCost(p2)) + Math.Max(GetSyllablePositionCost(p1, q), GetSyllablePositionCost(p2, q))))
-				+ GetSoundChangeScore(sequence1, p1, p2, sequence2, q, null);
+			// Unused by SCA alignment
+			return 0;
 		}
 
         // TODO: what should the max scores be here?
 		public int GetMaxScore1(Word sequence1, ShapeNode p, Word sequence2)
 		{
-			return GetMaxScore(p) + GetMaxSoundChangeScore(sequence1, p, sequence2);
+			return GetMaxScore(p);
 		}
 
+		// TODO
 		public int GetMaxScore2(Word sequence1, Word sequence2, ShapeNode q)
 		{
-			return GetMaxScore(q) + GetMaxSoundChangeScore(sequence2, q, sequence1);
+			return GetMaxScore(q);
 		}
 
-		private int GetSyllablePositionCost(ShapeNode p1, ShapeNode q1)
-		{
-			if (!_syllablePositionCostEnabled)
-				return 0;
-
-			SymbolicFeatureValue pos1, pos2;
-			if (p1.Annotation.FeatureStruct.TryGetValue(CogFeatureSystem.SyllablePosition, out pos1) && q1.Annotation.FeatureStruct.TryGetValue(CogFeatureSystem.SyllablePosition, out pos2))
-				return (FeatureSymbol) pos1 == (FeatureSymbol) pos2 ? 0 : SyllablePositionCost;
-			return 0;
-		}
-
-		private int GetMaxSoundChangeScore(Word word, ShapeNode node, Word otherWord)
-		{
-			if (!_soundChangeScoringEnabled)
-				return 0;
-
-			if (word.Variety == otherWord.Variety)
-				return 0;
-
-			VarietyPair varietyPair = word.Variety.VarietyPairs[otherWord.Variety];
-			if (varietyPair.SoundChangeProbabilityDistribution == null)
-				return 0;
-
-			double prob;
-			if (varietyPair.Variety1 == word.Variety)
-			{
-				SoundContext lhs = node.ToSoundContext(_segmentPool, _contextualSoundClasses);
-				prob = varietyPair.DefaultCorrespondenceProbability;
-				IProbabilityDistribution<Ngram<Segment>> probDist;
-				if (varietyPair.SoundChangeProbabilityDistribution.TryGetProbabilityDistribution(lhs, out probDist) && probDist.Samples.Count > 0)
-					prob = probDist.Samples.Max(nseg => probDist[nseg]);
-			}
-			else
-			{
-				Ngram<Segment> corr = _segmentPool.GetExisting(node);
-				prob = varietyPair.SoundChangeProbabilityDistribution.Conditions.Count == 0 ? 0
-					: varietyPair.SoundChangeProbabilityDistribution.Conditions.Max(lhs => varietyPair.SoundChangeProbabilityDistribution[lhs][corr]);
-			}
-			return (int) (MaxSoundChangeScore * prob);
-		}
-
+		// TODO
 		private int GetMaxScore(ShapeNode node)
 		{
-			return MaxSubstitutionScore - (GetVowelCost(node) * 2);
-		}
-
-		public int Delta(FeatureStruct fs1, FeatureStruct fs2)
-		{
-			IEnumerable<SymbolicFeature> features = ((FeatureSymbol) fs1.GetValue(CogFeatureSystem.Type)) == CogFeatureSystem.VowelType
-				&& ((FeatureSymbol) fs2.GetValue(CogFeatureSystem.Type)) == CogFeatureSystem.VowelType
-				? _relevantVowelFeatures : _relevantConsFeatures;
-
-			return features.Aggregate(0, (val, feat) => val + (Diff(fs1, fs2, feat) * _featureWeights[feat]));
-		}
-
-		private int Diff(FeatureStruct fs1, FeatureStruct fs2, SymbolicFeature feature)
-		{
-			SymbolicFeatureValue pValue;
-			if (!fs1.TryGetValue(feature, out pValue))
-				pValue = null;
-			SymbolicFeatureValue qValue;
-			if (!fs2.TryGetValue(feature, out qValue))
-				qValue = null;
-
-			if (pValue == null && qValue == null)
-				return 0;
-
-			FeatureSymbol[] values1 = pValue == null ? feature.PossibleSymbols.ToArray() : pValue.Values.ToArray();
-			FeatureSymbol[] values2 = qValue == null ? feature.PossibleSymbols.ToArray() : qValue.Values.ToArray();
-			if (values2.Length > values1.Length)
-			{
-				FeatureSymbol[] temp = values1;
-				values1 = values2;
-				values2 = temp;
-			}
-			return (int) Math.Round(values1.Average(s1 => values2.Min(s2 => Math.Abs(_valueMetrics[s1] - _valueMetrics[s2]))));
-		}
-
-		private int GetVowelCost(ShapeNode node)
-		{
-			return node.Annotation.Type() == CogFeatureSystem.VowelType ? VowelCost : 0;
-		}
-
-		private int GetSoundChangeScore(Word sequence1, ShapeNode p1, ShapeNode p2, Word sequence2, ShapeNode q1, ShapeNode q2)
-		{
-			if (!_soundChangeScoringEnabled)
-				return 0;
-
-			if (sequence1.Variety == sequence2.Variety)
-				return 0;
-
-			VarietyPair varietyPair = sequence1.Variety.VarietyPairs[sequence2.Variety];
-
-			if (varietyPair.SoundChangeProbabilityDistribution == null)
-				return 0;
-
-			if (sequence1.Variety == varietyPair.Variety2)
-			{
-				ShapeNode tempNode = p1;
-				p1 = q1;
-				q1 = tempNode;
-
-				tempNode = p2;
-				p2 = q2;
-				q2 = tempNode;
-			}
-
-			Ngram<Segment> target;
-			if (p1 == null)
-			{
-				target = new Ngram<Segment>();
-			}
-			else
-			{
-				Segment targetSegment = _segmentPool.GetExisting(p1);
-				target = p2 == null ? targetSegment : new Ngram<Segment>(targetSegment, _segmentPool.GetExisting(p2));
-			}
-
-			Ngram<Segment> corr;
-			if (q1 == null)
-			{
-				corr = new Ngram<Segment>();
-			}
-			else
-			{
-				Segment corrSegment = _segmentPool.GetExisting(q1);
-				corr = q2 == null ? corrSegment : new Ngram<Segment>(corrSegment, _segmentPool.GetExisting(q2));
-			}
-
-			ShapeNode leftNode = p1 == null ? p2 : p1.GetPrev(NodeFilter);
-			SoundClass leftEnv;
-			if (leftNode == null || !_contextualSoundClasses.TryGetMatchingSoundClass(_segmentPool, leftNode, out leftEnv))
-				leftEnv = null;
-			ShapeNode pRight = p2 ?? p1;
-			ShapeNode rightNode = pRight == null ? null : pRight.GetNext(NodeFilter);
-			SoundClass rightEnv;
-			if (rightNode == null || !_contextualSoundClasses.TryGetMatchingSoundClass(_segmentPool, rightNode, out rightEnv))
-				rightEnv = null;
-
-			var lhs = new SoundContext(leftEnv, target, rightEnv);
-			IProbabilityDistribution<Ngram<Segment>> probDist;
-			double prob = varietyPair.SoundChangeProbabilityDistribution.TryGetProbabilityDistribution(lhs, out probDist) ? probDist[corr]
-				: varietyPair.DefaultCorrespondenceProbability;
-			return (int) (MaxSoundChangeScore * prob);
-		}
-
-		private static bool NodeFilter(ShapeNode node)
-		{
-			return node.Type().IsOneOf(CogFeatureSystem.ConsonantType, CogFeatureSystem.VowelType, CogFeatureSystem.AnchorType);
+			return MaxSubstitutionScore;
 		}
 	}
 }

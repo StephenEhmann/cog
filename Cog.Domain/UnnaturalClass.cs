@@ -11,14 +11,16 @@ namespace SIL.Cog.Domain
 		private readonly List<string> _segments; 
 		private readonly HashSet<string> _normalizedSegments;
 		private readonly bool _ignoreModifiers;
+		private readonly int _index;
 
-		public UnnaturalClass(string name, IEnumerable<string> segments, bool ignoreModifiers, Segmenter segmenter)
+		public UnnaturalClass(string name, IEnumerable<string> segments, bool ignoreModifiers, Segmenter segmenter, int index = -1)
 			: base(name)
 		{
 			_segmenter = segmenter;
 			_segments = segments.ToList();
 			_ignoreModifiers = ignoreModifiers;
 			_normalizedSegments = new HashSet<string>();
+			_index = index;
 			foreach (string segment in _segments)
 			{
 				if (segment == "#" || segment == "-")
@@ -66,6 +68,11 @@ namespace SIL.Cog.Domain
 		public bool IgnoreModifiers
 		{
 			get { return _ignoreModifiers; }
+		}
+
+		public int Index
+		{
+			get { return _index; }
 		}
 
 		public override bool Matches(ShapeNode leftNode, Ngram<Segment> target, ShapeNode rightNode)
